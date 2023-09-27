@@ -22,10 +22,10 @@ pub fn cpuclock(tx: Sender<i32>, cpu_delay_secs: f64) -> thread::JoinHandle<()> 
 
 
 
-pub fn cpu(rx: Receiver<i32>, ram: &mut [u8; constants::RAMSIZE]) -> thread::JoinHandle<()> {
+pub fn cpu(rx: Receiver<i32>, _ram: &mut [u8; constants::RAMSIZE]) -> thread::JoinHandle<()> {
 
-    let registers:[u8; 32] = [0; 32];
-    let sreg: u8 = 0; // status register
+    let _registers:[u8; 32] = [0; 32];
+    let _sreg: u8 = 0; // status register
 
     let th = thread::spawn(move || {
         println!("Thread Spawned");

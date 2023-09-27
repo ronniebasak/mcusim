@@ -2,8 +2,8 @@ pub mod cpu;
 pub mod constants;
 pub mod intel_hex_parse;
 
-use std::sync::mpsc::channel;
-use std::{thread, time};
+
+
 
 use intel_hex_parse::parse;
 
