@@ -4,8 +4,8 @@ use hex;
 use std::num::Wrapping;
 
 // Record Type enum
-#[derive(Debug)]
-enum RecordType {
+#[derive(Debug, Clone, PartialEq)]
+pub enum RecordType {
     Data,
     EndOfFile,
     ExtendedSegmentAddress,
@@ -21,13 +21,13 @@ impl Default for RecordType {
 }
 
 // add a struct to hold each line of the hex file
-#[derive(Debug, Default)]
-struct HexLine {
-    byte_count: u8,
-    address: u16,
-    record_type: RecordType,
-    data: Vec<u8>,
-    checksum: u8,
+#[derive(Debug, Default, Clone)]
+pub struct HexLine {
+    pub byte_count: u8,
+    pub address: u16,
+    pub record_type: RecordType,
+    pub data: Vec<u8>,
+    pub checksum: u8,
 }
 
 fn parse_hex_line(line: &str) -> HexLine {
@@ -74,10 +74,9 @@ pub fn parse(filename: String) -> Vec<HexLine> {
         if line.starts_with(':') {
             let hex_line = parse_hex_line(&line);
 
-            retval.push(hex_line);
+            retval.push(hex_line.clone());
             // Do something with the parsed data
-            println!("Address: {:04X}, Data: {:?}", hex_line.address, hex_line.data);
-        }
+            println!("Address: {:04X}, Data: {:?}", hex_line.address, hex_line.data);        }
     }
 
     return retval;

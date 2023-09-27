@@ -1,12 +1,13 @@
 pub mod cpu;
 pub mod constants;
 pub mod intel_hex_parse;
-
+pub mod avr_decoder;
+pub mod avrinstructions;
 
 
 
 use intel_hex_parse::parse;
-
+use intel_hex_parse::RecordType;
 
 
 fn main() {
@@ -27,6 +28,13 @@ fn main() {
     // cpu.join().expect("The receiver thread has panicked");
 
 
-    let file_name = "/home/sohan/Downloads/temp/out/add.hex".to_owned();
-    parse(file_name);
+    let file_name: String = "/home/sohan/Downloads/temp/out/add.hex".to_owned();
+    let hex_contents = parse(file_name);
+
+    for item in hex_contents {
+        println!("{:?}", item);
+        if item.record_type == RecordType::Data {
+            println!("MDATA: {:?}", item.data);
+        }
+    }
 }

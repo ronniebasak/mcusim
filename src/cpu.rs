@@ -1,41 +1,62 @@
-// // emulates a CPU clock with ticks
-use std::sync::mpsc::{Sender, Receiver};
-use std::thread;
-use std::time;
+// use std::sync::mpsc::{Receiver, Sender};
+// use std::thread;
+// use std::time;
 
+use crate::avr_decoder;
 use crate::constants;
 
-
-pub fn cpuclock(tx: Sender<i32>, cpu_delay_secs: f64) -> thread::JoinHandle<()> {
-    let th = thread::spawn(move || {
-        println!("Clock spawned");
-
-        let clk = 1;
-        loop {
-            thread::sleep(time::Duration::from_secs_f64(cpu_delay_secs));
-            tx.send(clk).unwrap();
-        }
-    });
-
-    return th;
+// add a struct representing the AVR CPU
+struct AvrCpu {
+    ram: [u8; constants::RAMSIZE],
+    pc: u16,
+    sp: u8,
+    sreg: u8,
+    registers: [u8; 32],
+    flash: [u8; constants::FLASHSIZE],
 }
 
+fn fetch(avr_cpu: &AvrCpu) -> u16 {
+    // read 2 bytes into a u16 in little endian
+    let low_byte = avr_cpu.flash[(avr_cpu.pc*2) as usize] as u16;
+    let high_byte = avr_cpu.flash[(avr_cpu.pc*2 + 1) as usize] as u16;
+    let instruction: u16 = low_byte | (high_byte << 8);
+    return instruction;
+}
 
+fn decode(opcode: u16) -> avr_decoder::InstructionSet {
+    // decode the avr instructions
+    return avr_decoder::avr_decoder(opcode).unwrap();
+}
 
-pub fn cpu(rx: Receiver<i32>, _ram: &mut [u8; constants::RAMSIZE]) -> thread::JoinHandle<()> {
+fn execute() {
+    // noop
+}
 
-    let _registers:[u8; 32] = [0; 32];
-    let _sreg: u8 = 0; // status register
+fn run(data: Vec<u8>) {
+    let mut avr_cpu = AvrCpu {
+        ram: [0; constants::RAMSIZE],
+        pc: 0,
+        sp: 0,
+        sreg: 0,
+        registers: [0; 32],
+        flash: [0; constants::FLASHSIZE],
+    };
 
-    let th = thread::spawn(move || {
-        println!("Thread Spawned");
+    avr_cpu.flash = data[0..constants::FLASHSIZE].try_into().unwrap();
 
-        loop {
-            let value = rx.recv().unwrap();
-
-            println!("CLK {}", value);
+    loop {
+        if (avr_cpu.pc*2) as usize >= data.len() {
+            break;
         }
-    });
 
-    return th;
+        let opcode = fetch(&avr_cpu);
+        avr_cpu.pc += 1;
+
+        println!("opcode: {:x}", opcode);
+
+        let decoded = decode(opcode);
+
+        println!("decoded: {:#?}", decoded);
+        execute();
+    }
 }
