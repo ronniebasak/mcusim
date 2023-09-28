@@ -2,8 +2,8 @@ pub mod cpu;
 pub mod constants;
 pub mod intel_hex_parse;
 pub mod avr_decoder;
-pub mod avrinstructions;
-
+pub mod avr_instructions;
+pub mod avr_executor;
 
 
 use intel_hex_parse::parse;

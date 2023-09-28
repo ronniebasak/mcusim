@@ -1,4 +1,4 @@
-use crate::avrinstructions::{*};
+use crate::avr_instructions::{*};
 
 
 fn decode_zero_series_inst(opcode: u16) -> Option<AvrInstructions> {
