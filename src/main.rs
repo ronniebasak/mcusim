@@ -9,7 +9,6 @@ pub mod avrinstructions;
 use intel_hex_parse::parse;
 use intel_hex_parse::RecordType;
 
-
 fn main() {
     // let cpu_freq: u32 = 2;
     // let cpu_delay_secs = (1.0 as f64) / (cpu_freq as f64);
@@ -31,10 +30,14 @@ fn main() {
     let file_name: String = "/home/sohan/Downloads/temp/out/add.hex".to_owned();
     let hex_contents = parse(file_name);
 
-    for item in hex_contents {
+    let mut data: Vec<u8> = Vec::new();
+    for item in hex_contents.iter() {
         println!("{:?}", item);
         if item.record_type == RecordType::Data {
             println!("MDATA: {:?}", item.data);
+            data.append(item.data.clone().as_mut());
         }
     }
+
+    cpu::run(data);
 }

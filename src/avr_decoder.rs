@@ -13,11 +13,8 @@ fn decode_zero_series_inst(opcode: u16) -> Option<InstructionSet> {
     let second_nibble_2msb = (second_nibble & 0b1100) >> 2;
 
     if second_nibble_2msb == 0b11 {
-        // 0b0000 11xx xxxx xxxx, ADD or LSL
-        // parse the 2nd LSB as Rr MSB and LSB as Rd MSB
-
-        let rr = (((second_nibble & 0b0010) << 3) | rest & 0x0F) as u8;
-        let rd = (opcode & 0b0000_0001_1111_0000 >> 4) as u8;
+        let rr = (((second_nibble & 0x02) << 3) | rest & 0x0F) as u8;
+        let rd = ((opcode & 0x01F0) >> 4) as u8;
 
         if rd == rr {
             // LSL
@@ -42,8 +39,8 @@ fn decode_zero_series_inst(opcode: u16) -> Option<InstructionSet> {
 }
 
 fn decode_e_series_inst(opcode: u16) -> Option<InstructionSet>{
-    let rd = 0x10 | (opcode & 0x00F0 >> 4) as u8;
-    let k1 = (opcode & 0x0F00 >> 8) as u8;
+    let rd: u8 = 0x10 | ((opcode & 0x00F0) >> 4) as u8;
+    let k1 = ((opcode & 0x0F00) >> 8) as u8;
     let k2 = (opcode & 0x000F) as u8;
     let k = (k1 << 4) | k2;
 
