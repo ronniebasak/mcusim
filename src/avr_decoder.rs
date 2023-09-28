@@ -1,77 +1,38 @@
-use crate::avrinstructions::{AvrInstructionSignals, AvrInstructions};
+use crate::avrinstructions::{*};
 
-#[derive(Debug, Clone)]
-pub struct InstructionSet {
-    instruction: AvrInstructions,
-    signal: AvrInstructionSignals,
-}
 
-fn decode_zero_series_inst(opcode: u16) -> Option<InstructionSet> {
+fn decode_zero_series_inst(opcode: u16) -> Option<AvrInstructions> {
     let second_nibble = ((opcode & 0x0F00) >> 8) as u8;
     let rest = (opcode & 0x00FF) as u8;
 
     let second_nibble_2msb = (second_nibble & 0b1100) >> 2;
 
-    if second_nibble_2msb == 0b11 {
-        let rr = (((second_nibble & 0x02) << 3) | rest & 0x0F) as u8;
-        let rd = ((opcode & 0x01F0) >> 4) as u8;
-
-        if rd == rr {
-            // LSL
-            return Some(InstructionSet {
-                instruction: AvrInstructions::LSL,
-                signal: AvrInstructionSignals {
-                    rd, ..Default::default()
-                },
-            });
-        } else {
-            // ADD
-            return Some(InstructionSet {
-                instruction: AvrInstructions::ADD,
-                signal: AvrInstructionSignals {
-                    rd, rr, ..Default::default()
-                },
-            });
-        }
+    if second_nibble_2msb != 0b11 {
+        return None;
     }
 
-    return None;
-}
+    let rr = (((second_nibble & 0x02) << 3) | rest & 0x0F) as u8;
+    let rd = ((opcode & 0x01F0) >> 4) as u8;
 
-fn decode_e_series_inst(opcode: u16) -> Option<InstructionSet>{
-    let rd: u8 = 0x10 | ((opcode & 0x00F0) >> 4) as u8;
-    let k1 = ((opcode & 0x0F00) >> 8) as u8;
-    let k2 = (opcode & 0x000F) as u8;
-    let k = (k1 << 4) | k2;
-
-    return Some(InstructionSet {
-        instruction: AvrInstructions::LDI,
-        signal: AvrInstructionSignals {
-            rd, k, ..Default::default()
-        },
-    });
-}
-
-pub fn avr_decoder(opcode: u16) -> Option<InstructionSet>{
-    // read the first nibble
-    let first_nibble = ((opcode & 0xF000) >> 12) as u8;
-    // read the second nibble
-    let second_nibble = ((opcode & 0x0F00) >> 8) as u8;
-    // read the third nibbl
-    let rest = opcode & 0x00FF;
-
-    if opcode == 0 {
-        return Some(InstructionSet {
-            instruction: AvrInstructions::NOP,
-            signal: AvrInstructionSignals {
-                ..Default::default()
-            },
-        });
-    } else if first_nibble == 0x0 {
-        return decode_zero_series_inst(opcode);
-    } else if first_nibble == 0b1110 {
-        return decode_e_series_inst(opcode);
+    if rd == rr {
+        Some(AvrInstructions::LSL(OneRegister { Rd: rd }))
+    } else {
+        Some(AvrInstructions::ADD(TwoRegisters { Rr: rr, Rd: rd }))
     }
+}
 
-    return None;
+fn decode_e_series_inst(opcode: u16) -> Option<AvrInstructions> {
+    let rd = 0x10 | ((opcode & 0x00F0) >> 4) as u8;
+    let k = ((opcode & 0x0F00) >> 4) as u8 | (opcode & 0x000F) as u8;
+
+    Some(AvrInstructions::LDI(OneRegisterConstantValue { Rd: rd, K: k }))
+}
+
+pub fn avr_decoder(opcode: u16) -> Option<AvrInstructions> {
+    match opcode {
+        0 => Some(AvrInstructions::NOP),
+        opcode if (opcode & 0xF000) == 0 => decode_zero_series_inst(opcode),
+        opcode if (opcode & 0xF000) == 0xE000 => decode_e_series_inst(opcode),
+        _ => None,
+    }
 }

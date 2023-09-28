@@ -66,7 +66,7 @@ pub struct ConstantAndBitNumber {
 
 #[derive(Debug, Clone)]
 pub enum AvrInstructions {
-    ADD(OneRegister),
+    ADD(TwoRegisters),
     SBC(TwoRegisters),
     CPC(TwoRegisters),
     LSL(OneRegister),
@@ -168,18 +168,4 @@ pub enum AvrInstructions {
     BRID(Constant7Bit),
     BST(RegisterIdAndBitNumber),
     BLD(RegisterIdAndBitNumber),
-}
-
-
-#[derive(Debug, Default, Clone)]
-pub struct AvrInstructionSignals {
-    pub rd: u8,
-    pub rr: u8,
-    pub K: u8,
-    pub A: u8,
-    pub s: u8,
-    pub k_16: u16,
-    pub k: u8,
-    pub q: u8,
-    pub b: u8,
 }
