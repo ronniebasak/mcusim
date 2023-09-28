@@ -1,76 +1,85 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct TwoRegisters {
     pub Rr: u8,
     pub Rd: u8,
 }
 
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Copy, Clone)]
+pub struct TwoRegistersPair {
+    pub Rd_lower: u8,
+    pub Rr_lower: u8,
+}
+
+
+
+#[derive(Debug, Copy, Clone)]
 pub struct OneRegister {
     pub Rd: u8,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct OneRegisterDisplaceMent {
     pub Rd: u8,
     pub q: u8
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct OneRegisterConstantAddress {
     pub Rd: u8,
     pub A: u8
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct OneRegisterConstantValue {
     pub Rd: u8,
     pub K: u8
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Constant7Bit {
     pub K: u8
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Constant12Bit {
     pub K: u16
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct OneRegisterConstantValue16Bit {
     pub Rd: u8,
     pub K: u16
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct BitAddressInSREG {
     pub s: u8
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct RegisterIdAndBitNumber {
     pub A: u8,
     pub b: u8
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct ConstantAndBitNumber {
     pub K: u8,
     pub b: u8
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum AvrInstructions {
     ADD(TwoRegisters),
     SBC(TwoRegisters),
     CPC(TwoRegisters),
     LSL(OneRegister),
-    MOVW(OneRegister), // only r16:r31
+    MOVW(TwoRegistersPair), // register pair
     NOP,
     ADC(TwoRegisters),
     SUB(TwoRegisters),
