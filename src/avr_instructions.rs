@@ -62,7 +62,7 @@ pub struct BitAddressInSREG {
 
 #[derive(Debug, Copy, Clone)]
 pub struct RegisterIdAndBitNumber {
-    pub A: u8,
+    pub R: u8,
     pub b: u8
 }
 
